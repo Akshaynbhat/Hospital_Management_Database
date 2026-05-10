@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0 text-dark">Dashboard Overview</h2>
+    <div>
+        <a href="{{ url_for('generate_report') }}" class="btn btn-primary rounded-pill shadow-sm"><i class="fas fa-download me-2"></i> Generate Report</a>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-gradient-primary shadow-sm h-100 p-4">
+            <div class="row align-items-center">
+                <div class="col">
+                    <div class="text-uppercase fw-semibold mb-1" style="letter-spacing: 0.5px; font-size: 0.85rem; opacity: 0.9;">Total Patients</div>
+                    <div class="h2 mb-0 fw-bold">{{ total_patients }}</div>
+                </div>
+            </div>
+            <i class="fas fa-procedures stat-icon"></i>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-gradient-success shadow-sm h-100 p-4">
+            <div class="row align-items-center">
+                <div class="col">
+                    <div class="text-uppercase fw-semibold mb-1" style="letter-spacing: 0.5px; font-size: 0.85rem; opacity: 0.9;">Total Doctors</div>
+                    <div class="h2 mb-0 fw-bold">{{ total_doctors }}</div>
+                </div>
+            </div>
+            <i class="fas fa-user-md stat-icon"></i>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-gradient-warning shadow-sm h-100 p-4">
+            <div class="row align-items-center">
+                <div class="col">
+                    <div class="text-uppercase fw-semibold mb-1" style="letter-spacing: 0.5px; font-size: 0.85rem; opacity: 0.9;">Today's Appointments</div>
+                    <div class="h2 mb-0 fw-bold">{{ today_appointments }}</div>
+                </div>
+            </div>
+            <i class="fas fa-calendar-day stat-icon"></i>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card bg-gradient-info shadow-sm h-100 p-4">
+            <div class="row align-items-center">
+                <div class="col">
+                    <div class="text-uppercase fw-semibold mb-1" style="letter-spacing: 0.5px; font-size: 0.85rem; opacity: 0.9;">Total Revenue</div>
+                    <div class="h2 mb-0 fw-bold">${{ total_revenue }}</div>
+                </div>
+            </div>
+            <i class="fas fa-file-invoice-dollar stat-icon"></i>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-xl-8 col-lg-7">
+        <div class="card glass-card h-100 border-0">
+            <div class="card-header bg-transparent border-bottom-0 pt-4 pb-0 px-4">
+                <h5 class="fw-bold text-dark m-0"><i class="fas fa-chart-line text-primary me-2"></i> Revenue Overview</h5>
+            </div>
+            <div class="card-body px-4 pb-4 pt-3">
+                <div class="chart-area" style="height: 350px; position: relative;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-4 col-lg-5">
+        <div class="card glass-card h-100 border-0">
+            <div class="card-header bg-transparent border-bottom-0 pt-4 pb-0 px-4">
+                <h5 class="fw-bold text-dark m-0"><i class="fas fa-bolt text-warning me-2"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="d-grid gap-3">
+                    <a href="{{ url_for('appointments') }}" class="btn btn-outline-primary p-3 text-start fw-semibold rounded-3"><i class="fas fa-plus-circle me-3 fs-5 align-middle"></i> Book New Appointment</a>
+                    <a href="{{ url_for('patients') }}" class="btn btn-outline-success p-3 text-start fw-semibold rounded-3"><i class="fas fa-user-plus me-3 fs-5 align-middle"></i> Register Patient</a>
+                    <a href="{{ url_for('billing') }}" class="btn btn-outline-info p-3 text-start fw-semibold rounded-3"><i class="fas fa-receipt me-3 fs-5 align-middle"></i> Generate Bill</a>
+                </div>
+                <div class="mt-4 p-3 bg-light rounded-3 border">
+                    <h6 class="fw-bold mb-2">System Status</h6>
+                    <div class="d-flex align-items-center mb-1">
+                        <div class="spinner-grow spinner-grow-sm text-success me-2" role="status" style="width: 10px; height: 10px;"></div>
+                        <span class="small text-muted">Database Connected (psycopg3)</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="spinner-grow spinner-grow-sm text-success me-2" role="status" style="width: 10px; height: 10px;"></div>
+                        <span class="small text-muted">Auto-Init Triggers Active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var ctx = document.getElementById("revenueChart").getContext('2d');
+    
+    // Create gradient
+    var gradient = ctx.createLinearGradient(0, 0, 0, 350);
+    gradient.addColorStop(0, 'rgba(79, 70, 229, 0.4)');
+    gradient.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
+    
+    var myLineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+            datasets: [{
+                label: "Revenue ($)",
+                backgroundColor: gradient,
+                borderColor: "#4f46e5",
+                pointBackgroundColor: "#ffffff",
+                pointBorderColor: "#4f46e5",
+                pointHoverBackgroundColor: "#4f46e5",
+                pointHoverBorderColor: "#ffffff",
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBorderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                data: [0, 5000, 7500, 12000, 10500, 18000, 24000],
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(30, 30, 45, 0.9)',
+                    titleFont: { size: 13, family: "'Inter', sans-serif" },
+                    bodyFont: { size: 14, family: "'Inter', sans-serif", weight: 'bold' },
+                    padding: 12,
+                    cornerRadius: 8,
+                    displayColors: false
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: { family: "'Inter', sans-serif" }
+                    }
+                },
+                y: {
+                    grid: {
+                        color: "rgba(0, 0, 0, 0.05)",
+                        drawBorder: false,
+                        borderDash: [5, 5]
+                    },
+                    ticks: {
+                        font: { family: "'Inter', sans-serif" },
+                        padding: 10,
+                        callback: function(value) { return '$' + value; }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

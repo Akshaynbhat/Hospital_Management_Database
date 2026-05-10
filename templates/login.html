@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block login_content %}
+<div class="container h-100">
+    <div class="row h-100 justify-content-center align-items-center" style="min-height: 100vh;">
+        <div class="col-md-6 col-lg-4">
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm rounded-3 border-0" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <div class="card login-card glass-card">
+                <div class="login-header">
+                    <i class="fas fa-heartbeat login-icon"></i>
+                    <h3>HMS Portal</h3>
+                    <p class="text-white-50 mt-2 mb-0 small">Please login to your account</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <form method="POST" action="{{ url_for('login') }}">
+                        <div class="form-floating mb-4">
+                            <input class="form-control bg-light border-0" id="username" name="username" type="text" placeholder="Enter username" required />
+                            <label for="username"><i class="fas fa-user text-primary me-2"></i> Username</label>
+                        </div>
+                        <div class="form-floating mb-4">
+                            <input class="form-control bg-light border-0" id="password" name="password" type="password" placeholder="Password" required />
+                            <label for="password"><i class="fas fa-lock text-primary me-2"></i> Password</label>
+                        </div>
+                        <div class="d-grid gap-2 mt-4">
+                            <button class="btn btn-primary btn-lg rounded-pill shadow-sm" type="submit">Secure Login <i class="fas fa-arrow-right ms-2"></i></button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-white text-center py-4 border-top-0">
+                    <div class="small text-muted fw-semibold">Hospital Management System &copy; 2024</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

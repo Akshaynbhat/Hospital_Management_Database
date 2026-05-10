@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Appointments Management</h2>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAppointmentModal">
+        <i class="fas fa-plus"></i> Book Appointment
+    </button>
+</div>
+
+<div class="card shadow mb-4 border-0">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Patient</th>
+                        <th>Doctor</th>
+                        <th>Date & Time</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for apt in appointments %}
+                    <tr>
+                        <td>{{ apt.appointment_id }}</td>
+                        <td>{{ apt.patient_name }}</td>
+                        <td>{{ apt.doctor_name }}</td>
+                        <td>{{ apt.appointment_date }}</td>
+                        <td>
+                            {% if apt.status == 'Scheduled' %}
+                                <span class="badge bg-warning text-dark">{{ apt.status }}</span>
+                            {% elif apt.status == 'Completed' %}
+                                <span class="badge bg-success">{{ apt.status }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ apt.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form action="{{ url_for('update_appointment_status', id=apt.appointment_id) }}" method="POST" class="d-inline">
+                                <input type="hidden" name="status" value="Completed">
+                                <button type="submit" class="btn btn-sm btn-success" title="Mark Completed"><i class="fas fa-check"></i></button>
+                            </form>
+                            <form action="{{ url_for('delete_appointment', id=apt.appointment_id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this appointment?');"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Appointment Modal -->
+<div class="modal fade" id="addAppointmentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('add_appointment') }}" method="POST">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Book Appointment</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Patient</label>
+                        <select name="patient_id" class="form-select" required>
+                            <option value="">Select Patient</option>
+                            {% for patient in patients_list %}
+                                <option value="{{ patient.patient_id }}">{{ patient.name }} ({{ patient.phone }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>Doctor</label>
+                        <select name="doctor_id" class="form-select" required>
+                            <option value="">Select Doctor</option>
+                            {% for doctor in doctors_list %}
+                                <option value="{{ doctor.doctor_id }}">{{ doctor.doctor_name }} ({{ doctor.specialization }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>Date & Time</label>
+                        <input type="datetime-local" name="appointment_date" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Symptoms</label>
+                        <textarea name="symptoms" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Book</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
